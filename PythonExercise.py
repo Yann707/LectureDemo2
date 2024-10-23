@@ -640,4 +640,3 @@ if __name__ == "__main__":
 
     print(f"The final speed of the car is: {new_car.current_speed} km/h")
 
-#2
