@@ -1,4 +1,5 @@
-'''#Exercise1
+'''
+#Exercise1
 print("Hello, Wu Zongyan!")
 
 #Exercise2
@@ -251,6 +252,7 @@ for i in range(user):
 
 print(f"The sum of the numbers is {sum}")
 
+
 #2
 number = []
 
@@ -265,8 +267,11 @@ while True:
 number.sort(reverse=True)
 
 print("The five greatest numbers are:")
-for i in range(min(5, len(number))):
-    print(number[i])
+for i in range(len(number)):
+    if i >= 5:
+        break
+print(number[i])
+
 
 #3
 def prime(number):
@@ -409,7 +414,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-'''
+
 #Exercise7
 #1
 def season(month):
@@ -454,4 +459,185 @@ for name in existing_name:
     print(name)
 
 #3
+data = {}
 
+while True:
+    print("1. Enter a new airport")
+    print("2. Fetch airport information")
+    print("3. Quit")
+
+    choice = input("Enter your choice (1/2/3): ")
+
+    if choice == '1':
+        icao_code = input("Enter the ICAO code of the airport: ")
+        airport_name = input("Enter the name of the airport: ")
+        data[icao_code] = airport_name
+        print("Airport information saved.")
+
+    elif choice == '2':
+        icao_code = input("Enter the ICAO code of the airport: ")
+        if icao_code in data:
+            print(f"The name of the airport is: {data[icao_code]}")
+        else:
+            print("Airport not found.")
+
+    elif choice == '3':
+        print("Program execution ends.")
+        break
+
+#Exercise8
+#1
+import mysql.connector
+
+def get_airport_info(cursor, icao_code):
+    query = "SELECT name, municipality FROM airports WHERE ident = %s"
+    cursor.execute(query, (icao_code,))
+    result = cursor.fetchone()  # 获取匹配的单条记录
+    return result
+
+def main():
+    icao_code = input("Enter the ICAO code of the airport: ")
+
+    connection = mysql.connector.connect(
+        host='127.0.0.1',
+        port=3306,
+        user='root',
+        password='0707',
+        database='table',
+        autocommit=True
+    )
+
+    cursor = connection.cursor()
+
+    airport_info = get_airport_info(cursor, icao_code)
+
+    if airport_info:
+        airport_name, municipality = airport_info
+        print(f"Airport: {airport_name}, Location: {municipality}")
+    else:
+        print("No airport found.")
+
+    cursor.close()
+    connection.close()
+
+if __name__ == "__main__":
+    main()
+
+#2
+import mysql.connector
+
+def fetch_airports_by_country(cursor, iso_country):
+    query = """
+    SELECT type, COUNT(*) as count
+    FROM airports
+    WHERE iso_country = %s
+    GROUP BY type
+    ORDER BY count DESC
+    """
+    cursor.execute(query, (iso_country,))
+    return cursor.fetchall()
+
+def main():
+    iso_country = input("Enter the ISO country code (e.g., 'FI' for Finland): ").upper()
+
+    connection = mysql.connector.connect(
+        host='127.0.1.1',
+        port=3306,
+        database='table',
+        user='root',
+        password='0707',
+        autocommit=True
+    )
+
+    cursor = connection.cursor()
+
+    airport_data = fetch_airports_by_country(cursor, iso_country)
+    if airport_data:
+        print(f"Airports in country '{iso_country}':")
+        for airport_type, count in airport_data:
+            print(f"{count} {airport_type} airport(s)")
+    else:
+        print(f"No airports found for country code '{iso_country}'.")
+
+    cursor.close()
+    connection.close()
+
+if __name__ == "__main__":
+    main()
+
+
+#3
+import mysql.connector
+from geopy.distance import geodesic
+
+def coordinates(cursor, ident):
+    query = f"SELECT latitude_deg, longitude_deg FROM airports WHERE ident = '{ident}'"
+    cursor.execute(query)
+    result = cursor.fetchone()
+    return result
+
+def calculate_distance(coord1, coord2):
+    return geodesic(coord1, coord2).kilometers
+
+def main():
+    airport1_icao = input("Enter the ICAO code of the first airport: ").upper()
+    airport2_icao = input("Enter the ICAO code of the second airport: ").upper()
+
+    connection = mysql.connector.connect(
+        host='127.0.1.1',
+        port=3306,
+        database='table',
+        user='root',
+        password='0707',
+        autocommit=True
+    )
+
+    try:
+        cursor = connection.cursor()
+
+        airport1_coords = coordinates(cursor, airport1_icao)
+        airport2_coords = coordinates(cursor, airport2_icao)
+
+        if airport1_coords is None or airport2_coords is None:
+            print("One or both airports not found in the database.")
+            return
+
+        distance = calculate_distance(airport1_coords, airport2_coords)
+        print(f"The distance between {airport1_icao} and {airport2_icao} is {distance:.3f} kilometers.")
+
+    finally:
+        cursor.close()
+        connection.close()
+
+if __name__ == "__main__":
+    main()
+'''
+#Exercise 9
+
+#1
+class Car:
+    def __init__(self, registration_number, max_speed):
+        self.registration_number = registration_number
+        self.max_speed = max_speed
+        self.current_speed = 0
+        self.travelled_distance = 0
+
+    def accelerate(self, speed_change):
+        new_speed = self.current_speed + speed_change
+        self.current_speed = max(0, min(new_speed, self.max_speed))
+
+if __name__ == "__main__":
+    new_car = Car(registration_number="ABC-123", max_speed=142)
+
+    new_car.accelerate(30)
+    new_car.accelerate(70)
+    new_car.accelerate(50)
+    print(f"Registration number: {new_car.registration_number}")
+    print(f"Maximum speed: {new_car.max_speed} km/h")
+    print(f"Current speed: {new_car.current_speed} km/h")
+
+    new_car.accelerate(-200)
+
+    print(f"The final speed of the car is: {new_car.current_speed} km/h")
+
+#2
